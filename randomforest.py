@@ -10,16 +10,17 @@ from numpy import random
 from csv import reader
 
 
+
 #Returns a subset (with replacement) of the data samples
 def getSubSamples(data):
-    # size = int(math.sqrt(len(data)))
-    # dataindex = range(0, len(data)-1)
-    # subindex = random.choice(dataindex, size, True)
-    # sub = []
-    # for index in subindex:
-    #     sub.append(data[index])
-    # return sub
-    return data #above code should work, has been deactivated for testing
+    size = int(len(data))
+    dataindex = range(0, len(data)-1)
+    subindex = random.choice(dataindex, size, True)
+    sub = []
+    for index in subindex:
+        sub.append(data[index])
+    return sub
+    #return data #above code should work, has been deactivated for testing
 
 
 def getLabelIndex(labels, result):
