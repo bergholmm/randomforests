@@ -28,42 +28,15 @@ def partition(dataset, fraction):
 
 def main():
 	dataset = load_csv("datasets/sonar.all-data.csv")
+	labels = extractUniqueLabels(dataset)
+
 	numTrees = 50
 	trainingSet, testSet = partition(dataset, 0.8)
-	labels = extractUniqueLabels(dataset)
+
 	trainRandomForest(numTrees, dataset, trainingSet, testSet, labels)
 
 
-	# numTrees = 50
-	# Trees = []
-	# accuracyAverage = 0;
-	# for k in range(0, numTrees):
-    #
-    #
-    #
-	#
-    #
-	# 	tree = Dtree()
-    #
-	# 	labels = extractUniqueLabels(dataset)
-	# 	#print("labels",labels)
-    #
-	# 	features = [x for x in range(len(dataset[0])-1)]
-	# 	#print("features",features)
-    #
-	# 	tree.train(trainingSet,features)
-    #
-	# 	correct = 0
-	# 	for testSample in testSet:
-	# 		result = tree.classify(testSample)
-	# 		if result == testSample[-1]:
-	# 			correct += 1
-    #
-	# 	print(k)
-	# 	accuracyAverage = accuracyAverage + (correct/len(testSet)*100);
-	# 	Trees.append(tree)
-    #
-	# print("Accuracy Average", accuracyAverage/50,"%")
+
 
 if __name__ == '__main__':
 	main()
