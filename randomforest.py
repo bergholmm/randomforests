@@ -20,15 +20,14 @@ def getSubSamples(data):
     for index in subindex:
         sub.append(data[index])
     return sub
-    #return data #above code should work, has been deactivated for testing
 
 
 def getLabelIndex(labels, result):
     index = 0
     for label in labels:
-            if(label == result):
-                return index
-            index +=1
+        if(label == result):
+            return index
+        index +=1
 
 
 #Returns the majority vote for a specific sample
@@ -73,23 +72,44 @@ def getTreeAccuracy(tree, testSet):
 
 
 def trainRandomForest(numTrees, dataset, trainingSet, testSet, labels):
-
-    print("labels",labels)
+#     print("labels",labels)
     Trees = []
+    subSets = []
     accuracyAverage = 0;
 
     #Grow all the trees in the forest
     for k in range(0, numTrees):
         tree = Dtree()
         features = [x for x in range(len(dataset[0]) - 1)]
-
-        tree.train(getSubSamples(trainingSet), features)
-        #tree.train(trainingSet, features)
+#         subSet = getSubSamples(trainingSet)
+        subSet = getSubSamples(dataset)
+        subSets.append(subSet)
+        tree.train(subSet, features)
         Trees.append(tree)
 
-    accuracy = getForestAccuracy(Trees, testSet, labels)
-    print("Accuracy ", accuracy, "%")
+#     accuracy = getForestAccuracy(Trees, testSet, labels)
+    accuracy = outOfBagEstimate(dataset, subSets, Trees, labels)
+
+#    print("Accuracy ", accuracy, "%")
+    return accuracy
 
 
+def outOfBagEstimate(dataset, subSets, trees, lables):
+    numSamples = len(dataset)
+    numTrees = len(trees)
+    correct = 0
 
+    for sample in dataset:
+        for i in range(numTrees):
+            predictions = []
+            if sample not in subSets[i]:
+                predictions.append(trees[i].classify(sample))
 
+        if len(predictions) == 0:
+            numSamples -= 1
+        else:
+            result = max(set(predictions), key=predictions.count)
+            if result == sample[-1]:
+                correct += 1
+
+    return (correct / numSamples * 100);

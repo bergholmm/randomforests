@@ -4,12 +4,9 @@ from math import inf
 import numpy
 from numpy import random
 
-
-
-
 #Returns a subset (with no replacement) of the features
 def getSubFeatures(features):
-    size = int(math.sqrt(len(features)))
+    size = 1
     sub = random.choice(features, size, False)
     return sub
 
