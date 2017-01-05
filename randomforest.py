@@ -10,6 +10,18 @@ from numpy import random
 from csv import reader
 
 
+#Returns a subset (with replacement) of the data samples
+def getSubSamples(data):
+    # size = int(math.sqrt(len(data)))
+    # dataindex = range(0, len(data)-1)
+    # subindex = random.choice(dataindex, size, True)
+    # sub = []
+    # for index in subindex:
+    #     sub.append(data[index])
+    # return sub
+    return data #above code should work, has been deactivated for testing
+
+
 def getLabelIndex(labels, result):
     index = 0
     for label in labels:
@@ -69,12 +81,13 @@ def trainRandomForest(numTrees, dataset, trainingSet, testSet, labels):
     for k in range(0, numTrees):
         tree = Dtree()
         features = [x for x in range(len(dataset[0]) - 1)]
-        tree.train(trainingSet, features)
+
+        tree.train(getSubSamples(trainingSet), features)
+        #tree.train(trainingSet, features)
         Trees.append(tree)
 
     accuracy = getForestAccuracy(Trees, testSet, labels)
     print("Accuracy ", accuracy, "%")
-
 
 
 
