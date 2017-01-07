@@ -1,4 +1,3 @@
-from decisiontree import extractUniqueLabels
 from randomforest import trainRandomForest
 from random import seed
 from random import randrange
@@ -6,6 +5,9 @@ from random import shuffle
 from csv import reader
 from math import sqrt
 
+from decisiontree import Dtree
+
+# Load a CSV file
 def load_csv(filename):
     dataset = list()
     with open(filename, 'r') as file:
@@ -24,19 +26,25 @@ def partition(dataset, fraction):
 
 def main():
     dataset = load_csv("datasets/sonar.all-data.csv")
-    labels = extractUniqueLabels(dataset)
-
     numTrees = 100
-    trainingSet, testSet = partition(dataset, 0.8)
-
     results = []
     for i in range(100):
-        print('run: ', i)
-        results.append(trainRandomForest(numTrees, dataset, trainingSet, testSet, labels))
+        trainingSet, testSet = partition(dataset, 0.9)
+        result1 = trainRandomForest(numTrees, dataset, trainingSet, testSet, 1)
+#         result2 = trainRandomForest(numTrees, dataset, trainingSet, testSet, 2)
+#         print(result1, result2)
+#         if result1 < result2:
+#             results.append(result2)
+#             print('run: ', i, 'accuracy: ', result2)
+#         else:
+#             results.append(result1)
+#             print('run: ', i, 'accuracy: ', result1)
+
+        results.append(result1)
+        print('run: ', i, 'accuracy: ', result1)
 
     accuracy = sum(results) / 100
     print("accuracy: ", accuracy, "%")
-
 
 if __name__ == '__main__':
         main()

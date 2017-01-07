@@ -9,56 +9,34 @@ from math import sqrt
 from numpy import random
 from csv import reader
 
-
-
 #Returns a subset (with replacement) of the data samples
-def getSubSamples(data):
-    size = int(len(data))
-    dataindex = range(0, len(data)-1)
-    subindex = random.choice(dataindex, size, True)
-    sub = []
-    for index in subindex:
-        sub.append(data[index])
-    return sub
-
-
-def getLabelIndex(labels, result):
-    index = 0
-    for label in labels:
-        if(label == result):
-            return index
-        index +=1
-
+def getSubSamples(data, ratio=1):
+    sample = list()
+    n_sample = round(len(data) * ratio)
+    while len(sample) < n_sample:
+        index = randrange(len(data))
+        sample.append(data[index])
+    return sample
 
 #Returns the majority vote for a specific sample
-def getForestMajorityVote(forest, labels, sample):
-    labelcount = numpy.zeros(len(labels))
-
+def getForestMajorityVote(forest, sample):
+    results = dict()
     for tree in forest:
         result = tree.classify(sample)
-        index = getLabelIndex(labels, result)
-        labelcount[index] += 1
-
-    biggestLabelIndex = -99
-    for index in range(0, len(labels)-1):
-        if(biggestLabelIndex == -99):
-            biggestLabelIndex = index
-        if(labelcount[index] > labelcount[biggestLabelIndex]):
-            biggestLabelIndex = index
-    return labels[biggestLabelIndex]
-
-
+        if result in results:
+            results[result] += 1
+        else:
+            results[result] = 1
+    return max(results, key=lambda x: results[x])
 
 #Returns the accuracy of a single Decision Tree
-def getForestAccuracy(forest, testSet, labels):
+def getForestAccuracy(forest, testSet):
     correct = 0
     for testSample in testSet:
-        result = getForestMajorityVote(forest, labels, testSample)
+        result = getForestMajorityVote(forest, testSample)
         if result == testSample[-1]:
             correct += 1
     return (correct / len(testSet) * 100);
-
-
 
 #Returns the accuracy of a single Decision Tree
 def getTreeAccuracy(tree, testSet):
@@ -69,10 +47,7 @@ def getTreeAccuracy(tree, testSet):
             correct += 1
     return (correct / len(testSet) * 100);
 
-
-
-def trainRandomForest(numTrees, dataset, trainingSet, testSet, labels):
-#     print("labels",labels)
+def trainRandomForest(numTrees, dataset, trainingSet, testSet, numFeatures):
     Trees = []
     subSets = []
     accuracyAverage = 0;
@@ -81,20 +56,15 @@ def trainRandomForest(numTrees, dataset, trainingSet, testSet, labels):
     for k in range(0, numTrees):
         tree = Dtree()
         features = [x for x in range(len(dataset[0]) - 1)]
-#         subSet = getSubSamples(trainingSet)
-        subSet = getSubSamples(dataset)
-        subSets.append(subSet)
-        tree.train(subSet, features)
+        subSet = getSubSamples(trainingSet, 0.5)
+#         subSets.append(subSet)
+        tree.train(subSet, features, numFeatures)
         Trees.append(tree)
 
-#     accuracy = getForestAccuracy(Trees, testSet, labels)
-    accuracy = outOfBagEstimate(dataset, subSets, Trees, labels)
+#     return outOfBagEstimate(dataset, subSets, Trees)
+    return getForestAccuracy(Trees, testSet)
 
-#    print("Accuracy ", accuracy, "%")
-    return accuracy
-
-
-def outOfBagEstimate(dataset, subSets, trees, lables):
+def outOfBagEstimate(dataset, subSets, trees):
     numSamples = len(dataset)
     numTrees = len(trees)
     correct = 0
@@ -113,3 +83,4 @@ def outOfBagEstimate(dataset, subSets, trees, lables):
                 correct += 1
 
     return (correct / numSamples * 100);
+
