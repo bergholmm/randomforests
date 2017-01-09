@@ -28,6 +28,7 @@ def main():
     dataset = load_csv("datasets/sonar.all-data.csv")
     numTrees = 100
     results = []
+    totalNumFeatures = len(dataset[0])-1
     numFeatures = 1
     numFeatures2 = round(log(totalNumFeatures+1, 2))
 
