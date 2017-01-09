@@ -65,7 +65,7 @@ def trainRandomForest(numTrees, dataset, trainingSet, testSet, numFeatures):
 
     #Grow all the trees in the forest
     for k in range(0, numTrees):
-        tree = DecisionTreeClassifier(max_features=1)
+        tree = DecisionTreeClassifier(max_features=numFeatures)
 #         features = [x for x in range(len(dataset[0]) - 1)]
         subSet = getSubSamples(trainingSet, 1)
         features = [x[:totFeatures] for x in subSet]
