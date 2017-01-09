@@ -4,7 +4,7 @@ from numpy import random
 
 class Dtree:
 
-	def __init__(self, maxdepth=10):
+	def __init__(self, maxdepth=1000):
 		self.root = None
 		self.maxdepth = maxdepth
 

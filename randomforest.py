@@ -1,5 +1,5 @@
 import math
-import numpy
+import numpy as np
 from decisiontree import Dtree
 from random import seed
 from random import randrange
@@ -8,6 +8,8 @@ from csv import reader
 from math import sqrt
 from numpy import random
 from csv import reader
+
+from sklearn.tree import DecisionTreeClassifier
 
 #Returns a subset (with replacement) of the data samples
 def getSubSamples(data, ratio=1):
@@ -19,31 +21,39 @@ def getSubSamples(data, ratio=1):
     return sample
 
 #Returns the majority vote for a specific sample
-def getForestMajorityVote(forest, sample):
-    results = dict()
+def getForestMajorityVote(forest, sample, numFeatures):
+    results = list()
+    features = np.array(sample[:numFeatures]).reshape(1, -1)
+    res = sample[-1]
     for tree in forest:
-        result = tree.classify(sample)
-        if result in results:
-            results[result] += 1
-        else:
-            results[result] = 1
-    return max(results, key=lambda x: results[x])
+        results.append(tree.predict(features))
+
+    results = [list(x)[0] for x in results]
+    return max(set(results), key=results.count)
 
 #Returns the accuracy of a single Decision Tree
-def getForestAccuracy(forest, testSet):
+def getForestAccuracy(forest, testSet, numFeatures):
     correct = 0
     for testSample in testSet:
-        result = getForestMajorityVote(forest, testSample)
+        result = getForestMajorityVote(forest, testSample, numFeatures)
         if result == testSample[-1]:
             correct += 1
     return (correct / len(testSet) * 100);
 
 #Returns the accuracy of a single Decision Tree
+# def getTreeAccuracy(tree, testSet):
+#     correct = 0
+#     for testSample in testSet:
+#         result = tree.classify(testSample)
+#         if result == testSample[-1]:
+#             correct += 1
+#     return (correct / len(testSet) * 100);
+
 def getTreeAccuracy(tree, testSet):
     correct = 0
-    for testSample in testSet:
-        result = tree.classify(testSample)
-        if result == testSample[-1]:
+
+    for i in range(len(testSet)):
+        if testSet[i][60] == result[i]:
             correct += 1
     return (correct / len(testSet) * 100);
 
@@ -51,18 +61,21 @@ def trainRandomForest(numTrees, dataset, trainingSet, testSet, numFeatures):
     Trees = []
     subSets = []
     accuracyAverage = 0;
+    totFeatures = len(trainingSet[0])-1
 
     #Grow all the trees in the forest
     for k in range(0, numTrees):
-        tree = Dtree()
-        features = [x for x in range(len(dataset[0]) - 1)]
-        subSet = getSubSamples(trainingSet, 0.5)
+        tree = DecisionTreeClassifier(max_features=1)
+#         features = [x for x in range(len(dataset[0]) - 1)]
+        subSet = getSubSamples(trainingSet, 1)
+        features = [x[:totFeatures] for x in subSet]
+        targets = [x[totFeatures:] for x in subSet]
 #         subSets.append(subSet)
-        tree.train(subSet, features, numFeatures)
+        tree.fit(features, targets)
         Trees.append(tree)
 
 #     return outOfBagEstimate(dataset, subSets, Trees)
-    return getForestAccuracy(Trees, testSet)
+    return getForestAccuracy(Trees, testSet, totFeatures)
 
 def outOfBagEstimate(dataset, subSets, trees):
     numSamples = len(dataset)
